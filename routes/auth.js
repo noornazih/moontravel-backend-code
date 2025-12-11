@@ -41,7 +41,7 @@ router.post('/v1/signup', (req, res) => {
       // ✅ Insert hotel if role is hotel_manager
       if (role === 'hotel_manager' && hotelName) {
         db.run(
-          'INSERT INTO hotels (name, location, price, description, roomsAvailable, manager_id) VALUES (?, ?, ?, ?, ?, ?)',
+          'INSERT INTO hotels (name, location, price, description, roomsAvailable, id) VALUES (?, ?, ?, ?, ?, ?)',
           [hotelName, 'Cairo', 100, 'Default description', 10, userId],
           (err) => {
             if (err) {
