@@ -34,4 +34,14 @@ db.exec(schema, (err) => {
   }
 });
 
+// Seed test flight for Postman testing
+db.run(
+  'INSERT OR IGNORE INTO flights (origin, destination, status, departure_time, arrival_time, price, seats_available) VALUES (?, ?, ?, ?, ?, ?, ?)',
+  ['Cairo', 'Dubai', 'on_time', '12/11/2025 08:00:00', '12/22/2025 12:00:00', 1500.00, 50],
+  (err) => {
+    if (err) console.error('Error seeding flight:', err);
+    else console.log('Test flight seeded');
+  }
+);
+
 module.exports = db;

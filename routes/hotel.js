@@ -5,7 +5,7 @@ const db = require('../db/database');
 const { checkRole } = require('../middleware/roleCheck');
 
 // Update hotel details
-router.put('/v1/hotels/:id', checkRole('hotel_manager'), (req, res) => {
+router.put('/v1/hotels/:id/update', checkRole('hotel_manager'), (req, res) => {
   const { pricePerNight, description, serviceProvided } = req.body;
   db.run(
     'UPDATE hotels SET price = COALESCE(?, price), description = COALESCE(?, description) WHERE id=?',

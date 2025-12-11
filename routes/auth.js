@@ -18,20 +18,45 @@ function logAuth(userId, eventType, ip) {
 
 // SIGNUP
 router.post('/v1/signup', (req, res) => {
-  const { username, email, password, role } = req.body;
+  const { username, email, password, role, hotelName } = req.body;
+
   if (!username || !email || !password || !role) {
     return res.status(400).json({ error: 'Missing fields' });
   }
+
   if (!['traveler', 'hotel_manager', 'admin'].includes(role)) {
     return res.status(400).json({ error: 'Invalid role specified' });
   }
+
   const hash = bcrypt.hashSync(password, 12);
+
   db.run(
     'INSERT INTO users (username,email,password_hash,role) VALUES (?,?,?,?)',
     [username.trim(), email.trim(), hash, role],
     function (err) {
       if (err) return res.status(409).json({ error: 'Email or username already exists' });
-      res.json({ message: 'User registered successfully!', userId: this.lastID, role });
+
+      const userId = this.lastID;
+
+      // ✅ Insert hotel if role is hotel_manager
+      if (role === 'hotel_manager' && hotelName) {
+        db.run(
+          'INSERT INTO hotels (name, location, price, description, roomsAvailable, manager_id) VALUES (?, ?, ?, ?, ?, ?)',
+          [hotelName, 'Cairo', 100, 'Default description', 10, userId],
+          (err) => {
+            if (err) {
+              console.error('Hotel insert error:', err);
+              // Still return success for user creation
+              return res.json({ message: 'User registered successfully, but hotel insert failed', userId, role });
+            }
+            // Return success with hotel info
+            return res.json({ message: 'User and hotel registered successfully!', userId, role, hotelName });
+          }
+        );
+      } else {
+        // Normal user signup response
+        res.json({ message: 'User registered successfully!', userId, role });
+      }
     }
   );
 });
@@ -77,7 +102,7 @@ router.post('/v1/login', (req, res) => {
     // 3) Persistent cookie (remember me), non-sensitive, accessible to JS
     if (rememberMe) {
       res.cookie('persistent_cookie', 'remember_me=true', {
-        httpOnly: false,           // non-sensitive
+        httpOnly: true,           // non-sensitive
         secure: isProd ? true : false,
         sameSite: 'Lax',           // allow normal navigation, mitigate CSRF
         maxAge: 1000 * 60 * 60 * 24 * 7 // 7 days
