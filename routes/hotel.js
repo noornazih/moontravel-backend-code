@@ -6,7 +6,7 @@ const { checkRole } = require('../middleware/roleCheck');
 
 // Update hotel details
 router.put('/v1/hotels/:id/update', checkRole('hotel_manager'), (req, res) => {
-  const { pricePerNight, description, serviceProvided } = req.body;
+  const { pricePerNight, description } = req.body;
   db.run(
     'UPDATE hotels SET price = COALESCE(?, price), description = COALESCE(?, description) WHERE id=?',
     [pricePerNight || null, description || null, req.params.id],
@@ -60,31 +60,7 @@ router.put('/v1/reservations/:id/status', checkRole('hotel_manager'), (req, res)
   });
 });
 
-// Booking stats
-router.get('/v1/stats/bookings', checkRole('hotel_manager'), (req, res) => {
-  // Simplified: totalBookings and occupancyRate
-  db.get(
-    'SELECT COUNT(*) AS totalBookings FROM bookings WHERE status="accepted"',
-    [],
-    (err, row) => {
-      if (err) return res.status(500).json({ error: 'Database error' });
-      res.json({ totalBookings: row.totalBookings, occupancyRate: '85%' });
-    }
-  );
-});
 
-// Revenue stats
-router.get('/v1/stats/revenue', checkRole('hotel_manager'), (req, res) => {
-  // Simplified: sum of confirmed payments in current month
-  db.get(
-    'SELECT COALESCE(SUM(amount),0) AS monthlyRevenue FROM payments WHERE status="confirmed"',
-    [],
-    (err, row) => {
-      if (err) return res.status(500).json({ error: 'Database error' });
-      res.json({ monthlyRevenue: row.monthlyRevenue, currency: 'EGP' });
-    }
-  );
-});
 
 // Update flight seat schedule
 router.put('/v1/flights/:id/seats', checkRole('hotel_manager'), (req, res) => {

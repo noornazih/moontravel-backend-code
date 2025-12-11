@@ -73,17 +73,7 @@ CREATE TABLE IF NOT EXISTS offers (
   expires_at DATETIME
 );
 
--- Reviews (for hotel details)
-CREATE TABLE IF NOT EXISTS reviews (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  hotel_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
-  rating INTEGER CHECK(rating BETWEEN 1 AND 5),
-  comment TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(hotel_id) REFERENCES hotels(id),
-  FOREIGN KEY(user_id) REFERENCES users(id)
-);
+
 
 -- Flights (for traveler search and manager seat updates)
 CREATE TABLE IF NOT EXISTS flights (

@@ -44,4 +44,30 @@ db.run(
   }
 );
 
+db.exec(schema, (err) => {
+  if (err) {
+    console.error('Schema setup failed:', err);
+    return;
+  }
+
+  // ✅ Seed a test hotel
+  db.run(
+    'INSERT OR IGNORE INTO hotels (name, location, price, description, roomsAvailable) VALUES (?, ?, ?, ?, ?)',
+    ['Emerald Sands Hotel', 'Cairo', 150, 'Initial description', 10],
+    (err) => {
+      if (err) console.error('Hotel seed failed:', err);
+      else console.log('Test hotel seeded');
+    }
+  );
+});
+
+db.run(
+  'INSERT OR IGNORE INTO bookings (user_id, hotel_id, check_in, check_out, special_requests, status) VALUES (?, ?, ?, ?, ?, ?)',
+  [1, 1, '12/11/2025', '12/22/2025', 'Late check-in, sea view', 'pending'],
+  (err) => {
+    if (err) console.error('Booking seed failed:', err);
+    else console.log('Test booking seeded');
+  }
+);
+
 module.exports = db;
